@@ -1,0 +1,12 @@
+{
+  "name": "portfolio",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "seed": "node seed-firebase.mjs",
+    "dev": "npx serve -l 3000"
+  },
+  "dependencies": {
+    "firebase": "^12.8.0"
+  }
+}
