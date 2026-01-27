@@ -231,17 +231,38 @@ export default function PortfolioHero() {
       `}</style>
 
             {/* Header */}
-            <header className="fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-sm">
+            <header className={`fixed top-0 left-0 right-0 z-50 px-6 py-4 backdrop-blur-md ${isDark ? "bg-black/50" : "bg-white/50"}`}>
                 <nav className="flex items-center justify-between max-w-7xl mx-auto">
-                    {/* Menu */}
-                    <div className="relative">
+
+                    {/* Desktop Navigation - Inline */}
+                    <div className="hidden md:flex items-center gap-1">
+                        {menuItems.map((item) => (
+                            <button
+                                key={item.label}
+                                onClick={() => scrollToSection(item.href)}
+                                className={`px-4 py-2 text-sm font-semibold rounded-full transition-all ${item.highlight
+                                        ? `${accentBg} ${isDark ? "text-black" : "text-white"}`
+                                        : `${isDark ? "text-neutral-300 hover:text-white hover:bg-neutral-800" : "text-neutral-600 hover:text-black hover:bg-neutral-100"}`
+                                    }`}
+                            >
+                                {item.label}
+                            </button>
+                        ))}
+                    </div>
+
+                    {/* Mobile Menu Button */}
+                    <div className="relative md:hidden">
                         <button
                             ref={buttonRef}
                             type="button"
-                            className={`p-2 text-neutral-400 hover:${isDark ? "text-white" : "text-black"} transition-colors`}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full border font-medium transition-all ${isMenuOpen
+                                ? `${accentBg} ${isDark ? "text-black" : "text-white"} border-transparent`
+                                : `${isDark ? "border-neutral-700 text-neutral-300 hover:text-white hover:border-neutral-500" : "border-neutral-300 text-neutral-700 hover:text-black hover:border-neutral-500"}`
+                                }`}
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
-                            {isMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+                            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                            <span className="text-sm font-semibold">Menu</span>
                         </button>
                         {isMenuOpen && (
                             <div
@@ -262,14 +283,6 @@ export default function PortfolioHero() {
                                 ))}
                             </div>
                         )}
-                    </div>
-
-                    {/* Logo */}
-                    <div
-                        className="text-4xl font-bold"
-                        style={{ fontFamily: "'Brush Script MT', cursive", color: accentColor }}
-                    >
-                        {firstName.charAt(0)}
                     </div>
 
                     {/* Right Side - Theme Toggle + Resume */}
