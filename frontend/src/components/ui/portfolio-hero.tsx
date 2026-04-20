@@ -72,12 +72,12 @@ const BlurText: React.FC<BlurTextProps> = ({
 export default function PortfolioHero() {
     const [isDark, setIsDark] = useState(true);
     // Derived colors for theming
-    const accentColor = isDark ? "#8d4beb" : "#000000";
-    const accentText = isDark ? "text-[#8d4beb]" : "text-black";
-    const accentBorder = isDark ? "border-[#8d4beb]" : "border-black";
-    const accentBg = isDark ? "bg-[#8d4beb]" : "bg-black";
-    const hoverAccentBg = isDark ? "hover:bg-[#8d4beb]" : "hover:bg-black";
-    const hoverAccentText = isDark ? "hover:text-black" : "hover:text-[#f0e6ff]";
+    const accentColor = isDark ? "#0073CF" : "#000000";
+    const accentText = isDark ? "text-[#0073CF]" : "text-black";
+    const accentBorder = isDark ? "border-[#0073CF]" : "border-black";
+    const accentBg = isDark ? "bg-[#0073CF]" : "bg-black";
+    const hoverAccentBg = isDark ? "hover:bg-[#0073CF]" : "hover:bg-black";
+    const hoverAccentText = "hover:text-white";
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -92,12 +92,30 @@ export default function PortfolioHero() {
     const [mounted, setMounted] = useState(false);
     const [showAllProjects, setShowAllProjects] = useState(false);
     const [showAllAchievements, setShowAllAchievements] = useState(false);
+    const [activeSection, setActiveSection] = useState("hero");
 
     useEffect(() => {
         setMounted(true);
         document.documentElement.classList.add("dark");
         loadData();
     }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    setActiveSection(entry.target.id);
+                }
+            });
+        }, { threshold: 0.3, rootMargin: "-10% 0px -50% 0px" });
+
+        const sections = document.querySelectorAll("section[id]");
+        sections.forEach((section) => observer.observe(section));
+
+        return () => observer.disconnect();
+    }, [loading]);
 
     const loadData = async () => {
         try {
@@ -149,7 +167,7 @@ export default function PortfolioHero() {
     };
 
     const menuItems = [
-        { label: "HOME", href: "hero", highlight: true },
+        { label: "HOME", href: "hero" },
         { label: "EXPERIENCE", href: "experience" },
         { label: "PROJECTS", href: "projects" },
         { label: "SKILLS", href: "skills" },
@@ -242,9 +260,9 @@ export default function PortfolioHero() {
                             <button
                                 key={item.label}
                                 onClick={() => scrollToSection(item.href)}
-                                className={`px-4 py-2 text-sm font-semibold rounded-full transition-all ${item.highlight
-                                        ? `${accentBg} ${isDark ? "text-[#f0e6ff]" : "text-[#f0e6ff]"}`
-                                        : `${isDark ? "text-[#bc8fe7] hover:text-[#f0e6ff] hover:bg-[#5c3c78]" : "text-neutral-600 hover:text-black hover:bg-neutral-100"}`
+                                className={`px-4 py-2 text-sm font-semibold rounded-full transition-all ${activeSection === item.href
+                                        ? `${accentBg} text-white`
+                                        : `${isDark ? "text-[#bc8fe7] hover:text-white hover:bg-[#5c3c78]" : "text-neutral-600 hover:text-black hover:bg-neutral-100"}`
                                     }`}
                             >
                                 {item.label}
@@ -278,7 +296,7 @@ export default function PortfolioHero() {
                                             scrollToSection(item.href);
                                             setIsMenuOpen(false);
                                         }}
-                                        className={`block w-full text-left text-lg font-bold py-2 px-3 rounded-lg transition-colors ${item.highlight ? accentText : isDark ? `text-[#f0e6ff] hover:${accentText}` : `text-black hover:${accentText}`}`}
+                                        className={`block w-full text-left text-lg font-bold py-2 px-3 rounded-lg transition-colors ${activeSection === item.href ? accentText : isDark ? `text-[#f0e6ff] hover:${accentText}` : `text-black hover:${accentText}`}`}
                                     >
                                         {item.label}
                                     </button>
@@ -363,11 +381,11 @@ export default function PortfolioHero() {
                         {/* About Me Section */}
                         {profile?.about && (
                             <div className="pt-6 max-w-xl w-full">
-                                <h3 className={`text-xl md:text-2xl font-light mb-3 ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>About Me</h3>
+                                <h3 className={`text-xl md:text-2xl font-light mb-3 ${isDark ? "text-white" : "text-neutral-700"}`}>About Me</h3>
                                 <div className={`h-[2px] w-full mb-6 ${accentBg}`}></div>
                                 <div className="flex gap-4 items-start">
                                     <span className={`text-3xl font-bold leading-none mt-[-4px] ${accentText}`}>≈</span>
-                                    <p className={`text-base md:text-lg leading-relaxed text-justify ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>
+                                    <p className={`text-base md:text-lg leading-relaxed text-justify ${isDark ? "text-white" : "text-neutral-700"}`}>
                                         {profile.about}
                                     </p>
                                 </div>
@@ -562,7 +580,7 @@ export default function PortfolioHero() {
 
                                                 {/* Description - Bullet Points */}
                                                 {exp.description && (
-                                                    <ul className={`text-sm space-y-2 list-disc pl-4 ${isDark ? "text-[#bc8fe7]/70" : "text-neutral-600"}`}>
+                                                    <ul className={`text-sm space-y-2 list-disc pl-4 ${isDark ? "text-white" : "text-neutral-600"}`}>
                                                         {exp.description.split(/[\n•]/).map(s => s.trim()).filter(Boolean).map((point, i) => (
                                                             <li key={i} className="leading-relaxed">{point}</li>
                                                         ))}
@@ -598,7 +616,7 @@ export default function PortfolioHero() {
                                     }`}
                             >
                                 <h3 className="text-xl font-bold mb-3">{proj.title}</h3>
-                                <p className={`text-sm mb-4 ${isDark ? "text-[#bc8fe7]/70" : "text-neutral-600"}`}>
+                                <p className={`text-sm mb-4 ${isDark ? "text-white" : "text-neutral-600"}`}>
                                     {proj.description}
                                 </p>
                                 <div className="flex flex-wrap gap-2 mb-4">
@@ -755,7 +773,7 @@ export default function PortfolioHero() {
                     >
                         GET IN TOUCH
                     </h2>
-                    <p className={`mb-12 max-w-xl mx-auto ${isDark ? "text-[#bc8fe7]/70" : "text-neutral-600"}`}>
+                    <p className={`mb-12 max-w-xl mx-auto ${isDark ? "text-white" : "text-neutral-600"}`}>
                         {profile?.summary || "Let's connect and build something amazing together."}
                     </p>
                     <div className="flex justify-center gap-8">
