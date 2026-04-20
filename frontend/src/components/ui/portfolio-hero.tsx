@@ -72,10 +72,10 @@ const BlurText: React.FC<BlurTextProps> = ({
 export default function PortfolioHero() {
     const [isDark, setIsDark] = useState(true);
     // Derived colors for theming
-    const accentColor = isDark ? "#C3E41D" : "#4d7c0f";
-    const accentText = isDark ? "text-[#C3E41D]" : "text-[#4d7c0f]";
-    const accentBorder = isDark ? "border-[#C3E41D]" : "border-[#4d7c0f]";
-    const accentBg = isDark ? "bg-[#C3E41D]" : "bg-[#4d7c0f]";
+    const accentColor = isDark ? "#8d4beb" : "#000000";
+    const accentText = isDark ? "text-[#8d4beb]" : "text-black";
+    const accentBorder = isDark ? "border-[#8d4beb]" : "border-black";
+    const accentBg = isDark ? "bg-[#8d4beb]" : "bg-black";
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -241,8 +241,8 @@ export default function PortfolioHero() {
                                 key={item.label}
                                 onClick={() => scrollToSection(item.href)}
                                 className={`px-4 py-2 text-sm font-semibold rounded-full transition-all ${item.highlight
-                                        ? `${accentBg} ${isDark ? "text-black" : "text-white"}`
-                                        : `${isDark ? "text-neutral-300 hover:text-white hover:bg-neutral-800" : "text-neutral-600 hover:text-black hover:bg-neutral-100"}`
+                                        ? `${accentBg} ${isDark ? "text-[#f0e6ff]" : "text-[#f0e6ff]"}`
+                                        : `${isDark ? "text-[#bc8fe7] hover:text-[#f0e6ff] hover:bg-[#5c3c78]" : "text-neutral-600 hover:text-black hover:bg-neutral-100"}`
                                     }`}
                             >
                                 {item.label}
@@ -256,8 +256,8 @@ export default function PortfolioHero() {
                             ref={buttonRef}
                             type="button"
                             className={`flex items-center gap-2 px-4 py-2 rounded-full border font-medium transition-all ${isMenuOpen
-                                ? `${accentBg} ${isDark ? "text-black" : "text-white"} border-transparent`
-                                : `${isDark ? "border-neutral-700 text-neutral-300 hover:text-white hover:border-neutral-500" : "border-neutral-300 text-neutral-700 hover:text-black hover:border-neutral-500"}`
+                                ? `${accentBg} ${isDark ? "text-[#f0e6ff]" : "text-[#f0e6ff]"} border-transparent`
+                                : `${isDark ? "border-[#5c3c78] text-[#bc8fe7] hover:text-[#f0e6ff] hover:border-[#8d4beb]" : "border-neutral-300 text-neutral-700 hover:text-black hover:border-neutral-500"}`
                                 }`}
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
@@ -267,7 +267,7 @@ export default function PortfolioHero() {
                         {isMenuOpen && (
                             <div
                                 ref={menuRef}
-                                className={`absolute top-full left-0 w-52 mt-2 p-4 rounded-xl shadow-2xl border ${isDark ? "bg-black/90 border-neutral-800" : "bg-white/90 border-neutral-200"}`}
+                                className={`absolute top-full left-0 w-52 mt-2 p-4 rounded-xl shadow-2xl border ${isDark ? "bg-black/90 border-[#5c3c78]" : "bg-white/90 border-neutral-200"}`}
                             >
                                 {menuItems.map((item) => (
                                     <button
@@ -276,7 +276,7 @@ export default function PortfolioHero() {
                                             scrollToSection(item.href);
                                             setIsMenuOpen(false);
                                         }}
-                                        className={`block w-full text-left text-lg font-bold py-2 px-3 rounded-lg transition-colors ${item.highlight ? accentText : isDark ? `text-white hover:${accentText}` : `text-black hover:${accentText}`}`}
+                                        className={`block w-full text-left text-lg font-bold py-2 px-3 rounded-lg transition-colors ${item.highlight ? accentText : isDark ? `text-[#f0e6ff] hover:${accentText}` : `text-black hover:${accentText}`}`}
                                     >
                                         {item.label}
                                     </button>
@@ -291,16 +291,16 @@ export default function PortfolioHero() {
                             href={profile?.resume_url || "#"}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`px-4 py-2 ${accentBg} ${isDark ? "text-black" : "text-white"} font-semibold rounded-full text-sm hover:opacity-90 transition-colors`}
+                            className={`px-4 py-2 ${accentBg} ${isDark ? "text-[#f0e6ff]" : "text-[#f0e6ff]"} font-semibold rounded-full text-sm hover:opacity-90 transition-colors`}
                         >
                             Resume
                         </a>
                         <button
                             onClick={toggleTheme}
-                            className={`w-14 h-7 rounded-full relative transition-colors ${isDark ? "bg-neutral-800" : "bg-neutral-200"}`}
+                            className={`w-14 h-7 rounded-full relative transition-colors ${isDark ? "bg-[#5c3c78]" : "bg-neutral-200"}`}
                         >
                             <div
-                                className={`absolute top-1 w-5 h-5 rounded-full transition-all duration-300 ${isDark ? "left-8 bg-white" : "left-1 bg-black"}`}
+                                className={`absolute top-1 w-5 h-5 rounded-full transition-all duration-300 ${isDark ? "left-8 bg-[#bc8fe7]" : "left-1 bg-black"}`}
                             />
                         </button>
                     </div>
@@ -316,13 +316,13 @@ export default function PortfolioHero() {
                         {/* Availability Status Badge - Only show when enabled */}
                         {profile?.available_for_work && (
                             <div className="flex items-center gap-3">
-                                <div className={`relative flex items-center gap-2 px-4 py-2 rounded-full border ${isDark ? "bg-neutral-900/80 border-neutral-700" : "bg-white/80 border-neutral-200"} backdrop-blur-sm shadow-lg`}>
+                                <div className={`relative flex items-center gap-2 px-4 py-2 rounded-full border ${isDark ? "bg-black/80 border-[#5c3c78]" : "bg-white/80 border-neutral-200"} backdrop-blur-sm shadow-lg`}>
                                     {/* Animated pulse dot */}
                                     <span className="relative flex h-3 w-3">
-                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#8d4beb] opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-3 w-3 bg-[#8d4beb]"></span>
                                     </span>
-                                    <span className={`text-sm font-medium ${isDark ? "text-neutral-200" : "text-neutral-700"}`}>
+                                    <span className={`text-sm font-medium ${isDark ? "text-[#bc8fe7]" : "text-neutral-700"}`}>
                                         Available for Work
                                     </span>
                                     {/* Decorative sparkle */}
@@ -353,7 +353,7 @@ export default function PortfolioHero() {
                         </div>
 
                         <p
-                            className="text-xl md:text-2xl text-neutral-400 italic max-w-lg"
+                            className={`text-xl md:text-2xl italic max-w-lg ${isDark ? "text-[#bc8fe7]/70" : "text-black"}`}
                             style={{ fontFamily: "'Georgia', serif" }}
                         >
                             {profile?.headline || "AI Engineer / student"}
@@ -365,7 +365,7 @@ export default function PortfolioHero() {
                                 href={profile?.github || "#"}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`p-3 rounded-full border border-neutral-700 text-neutral-400 hover:${accentText} hover:${accentBorder} transition-all`}
+                                className={`p-3 rounded-full border ${isDark ? "border-neutral-700 text-[#bc8fe7]/70 hover:text-[#8d4beb] hover:border-[#8d4beb]" : "border-neutral-300 text-black hover:text-[#8d4beb] hover:border-[#8d4beb]"} transition-all`}
                             >
                                 <Github className="w-6 h-6" />
                             </a>
@@ -373,7 +373,7 @@ export default function PortfolioHero() {
                                 href={profile?.linkedin || "#"}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`p-3 rounded-full border border-neutral-700 text-neutral-400 hover:${accentText} hover:${accentBorder} transition-all`}
+                                className={`p-3 rounded-full border ${isDark ? "border-neutral-700 text-[#bc8fe7]/70 hover:text-[#8d4beb] hover:border-[#8d4beb]" : "border-neutral-300 text-black hover:text-[#8d4beb] hover:border-[#8d4beb]"} transition-all`}
                             >
                                 <Linkedin className="w-6 h-6" />
                             </a>
@@ -394,7 +394,7 @@ export default function PortfolioHero() {
                                     referrerPolicy="no-referrer"
                                 />
                             ) : (
-                                <div className="w-full h-full bg-neutral-800 flex items-center justify-center text-neutral-500 text-center p-6">
+                                <div className="w-full h-full bg-[#5c3c78] flex items-center justify-center text-[#8d4beb] text-center p-6">
                                     <div className="space-y-2">
                                         <p>Add Profile Photo</p>
                                         <p className="text-xs opacity-50">Admin Panel</p>
@@ -403,11 +403,11 @@ export default function PortfolioHero() {
                             )}
 
                             {/* Instagram-style Overlay */}
-                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-white backdrop-blur-[2px]">
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center text-[#f0e6ff] backdrop-blur-[2px]">
                                 <div className="flex gap-12 text-center">
                                     <div className="flex flex-col items-center gap-1 group/stat cursor-default">
                                         <div className={`w-12 h-12 rounded-full ${accentBg}/20 flex items-center justify-center mb-2 group-hover/stat:${accentBg} transition-colors duration-300`}>
-                                            <Layers className={`w-6 h-6 ${accentText} group-hover/stat:text-black transition-colors`} />
+                                            <Layers className={`w-6 h-6 ${accentText} group-hover/stat:text-[#f0e6ff] transition-colors`} />
                                         </div>
                                         <span className="text-3xl font-bold">{projects.length}</span>
                                         <span className="text-sm text-neutral-300 font-medium tracking-wide">Projects</span>
@@ -415,7 +415,7 @@ export default function PortfolioHero() {
 
                                     <div className="flex flex-col items-center gap-1 group/stat cursor-default">
                                         <div className={`w-12 h-12 rounded-full ${accentBg}/20 flex items-center justify-center mb-2 group-hover/stat:${accentBg} transition-colors duration-300`}>
-                                            <Briefcase className={`w-6 h-6 ${accentText} group-hover/stat:text-black transition-colors`} />
+                                            <Briefcase className={`w-6 h-6 ${accentText} group-hover/stat:text-[#f0e6ff] transition-colors`} />
                                         </div>
                                         <span className="text-3xl font-bold">
                                             {(() => {
@@ -452,7 +452,7 @@ export default function PortfolioHero() {
                 {/* Scroll Indicator */}
                 <button
                     onClick={() => scrollToSection("experience")}
-                    className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-neutral-500 hover:${accentText} transition-colors z-20 animate-bounce`}
+                    className={`absolute bottom-8 left-1/2 -translate-x-1/2 text-[#8d4beb] hover:${accentText} transition-colors z-20 animate-bounce`}
                 >
                     <ChevronDown className="w-8 h-8" />
                 </button>
@@ -468,9 +468,9 @@ export default function PortfolioHero() {
                         EXPERIENCE
                     </h2>
                     {experiences.length === 0 ? (
-                        <p className="text-neutral-500 text-center">No experiences yet. Add some in the admin panel!</p>
+                        <p className="text-[#8d4beb] text-center">No experiences yet. Add some in the admin panel!</p>
                     ) : (
-                        <div className={`rounded-2xl border ${isDark ? "bg-neutral-900/50 border-neutral-800" : "bg-neutral-100 border-neutral-200"}`}>
+                        <div className={`rounded-2xl border ${isDark ? "bg-black/40 border-[#5c3c78]" : "bg-neutral-100 border-neutral-200"}`}>
                             {experiences.map((exp, index) => {
                                 // Calculate Duration
                                 let duration = "";
@@ -528,11 +528,11 @@ export default function PortfolioHero() {
                                             <div className="ml-16 space-y-4">
                                                 {/* Role & Date */}
                                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                                                    <div className={`flex items-center gap-2 text-lg font-medium ${isDark ? "text-white" : "text-black"}`}>
-                                                        <User className="w-4 h-4 text-neutral-400" />
+                                                    <div className={`flex items-center gap-2 text-lg font-medium ${isDark ? "text-[#f0e6ff]" : "text-black"}`}>
+                                                        <User className="w-4 h-4 text-[#bc8fe7]/70" />
                                                         {exp.role}
                                                     </div>
-                                                    <div className="flex items-center gap-3 text-sm text-neutral-500">
+                                                    <div className={`flex items-center gap-3 text-sm ${isDark ? "text-[#8d4beb]" : "text-black"}`}>
                                                         <div className="flex items-center gap-1">
                                                             <Calendar className="w-3.5 h-3.5" />
                                                             <span>{exp.start_date} — {exp.end_date || "Present"}</span>
@@ -547,7 +547,7 @@ export default function PortfolioHero() {
 
                                                 {/* Description - Bullet Points */}
                                                 {exp.description && (
-                                                    <ul className={`text-sm space-y-2 list-disc pl-4 ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+                                                    <ul className={`text-sm space-y-2 list-disc pl-4 ${isDark ? "text-[#bc8fe7]/70" : "text-neutral-600"}`}>
                                                         {exp.description.split(/[\n•]/).map(s => s.trim()).filter(Boolean).map((point, i) => (
                                                             <li key={i} className="leading-relaxed">{point}</li>
                                                         ))}
@@ -574,16 +574,16 @@ export default function PortfolioHero() {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {projects.length === 0 && (
-                            <p className="text-neutral-500 text-center col-span-full">No projects yet. Add some in the admin panel!</p>
+                            <p className="text-[#8d4beb] text-center col-span-full">No projects yet. Add some in the admin panel!</p>
                         )}
                         {(showAllProjects ? projects : projects.slice(0, 3)).map((proj) => (
                             <div
                                 key={proj.id}
-                                className={`p-6 rounded-2xl border transition-all hover:${accentBorder}/50 hover:-translate-y-2 ${isDark ? "bg-neutral-900/50 border-neutral-800" : "bg-neutral-100 border-neutral-200"
+                                className={`p-6 rounded-2xl border transition-all hover:${accentBorder}/50 hover:-translate-y-2 ${isDark ? "bg-black/40 border-[#5c3c78]" : "bg-neutral-100 border-neutral-200"
                                     }`}
                             >
                                 <h3 className="text-xl font-bold mb-3">{proj.title}</h3>
-                                <p className={`text-sm mb-4 ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+                                <p className={`text-sm mb-4 ${isDark ? "text-[#bc8fe7]/70" : "text-neutral-600"}`}>
                                     {proj.description}
                                 </p>
                                 <div className="flex flex-wrap gap-2 mb-4">
@@ -602,7 +602,7 @@ export default function PortfolioHero() {
                                             href={proj.github_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className={`text-neutral-400 hover:${accentText} transition-colors`}
+                                            className={`text-[#bc8fe7]/70 hover:${accentText} transition-colors`}
                                         >
                                             <Github className="w-5 h-5" />
                                         </a>
@@ -612,7 +612,7 @@ export default function PortfolioHero() {
                                             href={proj.demo_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className={`text-neutral-400 hover:${accentText} transition-colors`}
+                                            className={`text-[#bc8fe7]/70 hover:${accentText} transition-colors`}
                                         >
                                             <ExternalLink className="w-5 h-5" />
                                         </a>
@@ -625,7 +625,7 @@ export default function PortfolioHero() {
                         <div className="flex justify-center mt-12">
                             <button
                                 onClick={() => setShowAllProjects(!showAllProjects)}
-                                className={`px-8 py-3 rounded-full font-medium transition-all duration-300 border ${accentBorder} ${accentText} hover:${accentBg} hover:${isDark ? "text-black" : "text-white"} flex items-center gap-2`}
+                                className={`px-8 py-3 rounded-full font-medium transition-all duration-300 border ${accentBorder} ${accentText} hover:${accentBg} hover:${isDark ? "text-black" : "text-[#f0e6ff]"} flex items-center gap-2`}
                             >
                                 {showAllProjects ? "Show Less" : "See More Projects"}
                                 {showAllProjects ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -666,19 +666,19 @@ export default function PortfolioHero() {
                             }, {} as Record<string, api.Skill[]>);
 
                             return (
-                                <div key={category} className={`border rounded-xl p-4 ${isDark ? "bg-neutral-900/50 border-neutral-800" : "bg-neutral-100 border-neutral-200"}`}>
+                                <div key={category} className={`border rounded-xl p-4 ${isDark ? "bg-black/40 border-[#5c3c78]" : "bg-neutral-100 border-neutral-200"}`}>
                                     <h3 className={`text-sm font-semibold ${accentText} mb-4 uppercase tracking-wider`}>{category}</h3>
                                     <div className="flex flex-col gap-2">
                                         {groupedSkills[category].map((skill) => (
-                                            <div key={skill.id} className={`rounded-lg p-3 flex items-center gap-3 ${isDark ? "bg-neutral-800" : "bg-neutral-200"}`}>
+                                            <div key={skill.id} className={`rounded-lg p-3 flex items-center gap-3 ${isDark ? "bg-[#5c3c78]" : "bg-neutral-200"}`}>
                                                 {skill.icon_url ? (
                                                     <img src={skill.icon_url} alt={skill.name} className="w-6 h-6 object-contain rounded" referrerPolicy="no-referrer" />
                                                 ) : (
-                                                    <div className={`w-6 h-6 rounded ${isDark ? "bg-neutral-700" : "bg-neutral-300"} flex items-center justify-center text-xs ${accentText} font-bold`}>
+                                                    <div className={`w-6 h-6 rounded ${isDark ? "bg-[#5c3c78]" : "bg-neutral-300"} flex items-center justify-center text-xs ${accentText} font-bold`}>
                                                         {skill.name.charAt(0)}
                                                     </div>
                                                 )}
-                                                <span className={`text-sm font-medium ${isDark ? "text-neutral-200" : "text-neutral-800"}`}>{skill.name}</span>
+                                                <span className={`text-sm font-medium ${isDark ? "text-[#bc8fe7]" : "text-neutral-800"}`}>{skill.name}</span>
                                             </div>
                                         ))}
                                     </div>
@@ -713,7 +713,7 @@ export default function PortfolioHero() {
                                         <Trophy className={`w-8 h-8 ${accentText}`} />
                                     )
                                 }
-                                className={`w-full max-w-[320px] ${isDark ? "bg-neutral-900/50 border-neutral-800" : "bg-neutral-100 border-neutral-200"}`}
+                                className={`w-full max-w-[320px] ${isDark ? "bg-black/40 border-[#5c3c78]" : "bg-neutral-100 border-neutral-200"}`}
                             />
                         ))}
                     </div>
@@ -721,7 +721,7 @@ export default function PortfolioHero() {
                         <div className="flex justify-center mt-12">
                             <button
                                 onClick={() => setShowAllAchievements(!showAllAchievements)}
-                                className={`px-8 py-3 rounded-full font-medium transition-all duration-300 border ${accentBorder} ${accentText} hover:${accentBg} hover:${isDark ? "text-black" : "text-white"} flex items-center gap-2`}
+                                className={`px-8 py-3 rounded-full font-medium transition-all duration-300 border ${accentBorder} ${accentText} hover:${accentBg} hover:${isDark ? "text-black" : "text-[#f0e6ff]"} flex items-center gap-2`}
                             >
                                 {showAllAchievements ? "Show Less" : "See More Achievements"}
                                 {showAllAchievements ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -740,7 +740,7 @@ export default function PortfolioHero() {
                     >
                         GET IN TOUCH
                     </h2>
-                    <p className={`mb-12 max-w-xl mx-auto ${isDark ? "text-neutral-400" : "text-neutral-600"}`}>
+                    <p className={`mb-12 max-w-xl mx-auto ${isDark ? "text-[#bc8fe7]/70" : "text-neutral-600"}`}>
                         {profile?.summary || "Let's connect and build something amazing together."}
                     </p>
                     <div className="flex justify-center gap-8">
@@ -749,10 +749,10 @@ export default function PortfolioHero() {
                                 href={profile.github}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`group flex flex-col items-center gap-3 text-neutral-400 hover:${accentText} transition-colors`}
+                                className={`group flex flex-col items-center gap-3 transition-colors ${isDark ? "text-[#bc8fe7]/70 hover:text-[#8d4beb]" : "text-black hover:text-[#8d4beb]"}`}
                             >
                                 <div
-                                    className={`w-16 h-16 rounded-full border-2 flex items-center justify-center transition-colors group-hover:${accentBorder} ${isDark ? "border-neutral-700" : "border-neutral-300"
+                                    className={`w-16 h-16 rounded-full border-2 flex items-center justify-center transition-colors group-hover:${accentBorder} ${isDark ? "border-[#5c3c78]" : "border-neutral-300"
                                         }`}
                                 >
                                     <Github className="w-7 h-7" />
@@ -763,10 +763,10 @@ export default function PortfolioHero() {
                         {profile?.email && (
                             <a
                                 href={`mailto:${profile.email}`}
-                                className={`group flex flex-col items-center gap-3 text-neutral-400 hover:${accentText} transition-colors`}
+                                className={`group flex flex-col items-center gap-3 transition-colors ${isDark ? "text-[#bc8fe7]/70 hover:text-[#8d4beb]" : "text-black hover:text-[#8d4beb]"}`}
                             >
                                 <div
-                                    className={`w-16 h-16 rounded-full border-2 flex items-center justify-center transition-colors group-hover:${accentBorder} ${isDark ? "border-neutral-700" : "border-neutral-300"
+                                    className={`w-16 h-16 rounded-full border-2 flex items-center justify-center transition-colors group-hover:${accentBorder} ${isDark ? "border-[#5c3c78]" : "border-neutral-300"
                                         }`}
                                 >
                                     <Mail className="w-7 h-7" />
@@ -779,10 +779,10 @@ export default function PortfolioHero() {
                                 href={profile.linkedin}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={`group flex flex-col items-center gap-3 text-neutral-400 hover:${accentText} transition-colors`}
+                                className={`group flex flex-col items-center gap-3 transition-colors ${isDark ? "text-[#bc8fe7]/70 hover:text-[#8d4beb]" : "text-black hover:text-[#8d4beb]"}`}
                             >
                                 <div
-                                    className={`w-16 h-16 rounded-full border-2 flex items-center justify-center transition-colors group-hover:${accentBorder} ${isDark ? "border-neutral-700" : "border-neutral-300"
+                                    className={`w-16 h-16 rounded-full border-2 flex items-center justify-center transition-colors group-hover:${accentBorder} ${isDark ? "border-[#5c3c78]" : "border-neutral-300"
                                         }`}
                                 >
                                     <Linkedin className="w-7 h-7" />
@@ -796,8 +796,7 @@ export default function PortfolioHero() {
 
             {/* Footer */}
             <footer
-                className={`py-8 px-6 text-center text-sm border-t ${isDark ? "border-neutral-800 text-neutral-500" : "border-neutral-200 text-neutral-500"
-                    }`}
+                className={`py-8 px-6 text-center text-sm border-t ${isDark ? "border-[#5c3c78] text-[#bc8fe7]/60" : "border-neutral-200 text-black"}`}
             >
                 © {new Date().getFullYear()} {profile?.name || "Portfolio"}. Built with passion.
             </footer>

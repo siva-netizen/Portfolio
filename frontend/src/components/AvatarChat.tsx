@@ -26,7 +26,7 @@ const BUBBLE_H = 420;
 
 export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
   const [messages, setMessages] = useState<{ role: "user" | "bot"; text: string }[]>([
-    { role: "bot", text: "SIVA.EXE LOADED\n> Hey, ask me about my work." },
+    { role: "bot", text: "Hey! I am  Siva from Pixel World. Just Ask things that you need to know about me" },
   ]);
   const [input, setInput]   = useState("");
   const [status, setStatus] = useState<string | null>(null);
@@ -124,17 +124,17 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
         background:      "#050f05",
         backgroundImage: `${dotGrid}`,
         backgroundSize:  "12px 12px",
-        border:          "3px solid #39ff14",
-        boxShadow:       "0 0 0 1px #000, 0 0 24px #39ff1455, inset 0 0 40px #00100a",
+        border:          "3px solid #bc8fe7",
+        boxShadow:       "0 0 0 1px #000, 0 0 24px #bc8fe755, inset 0 0 40px #00100a",
         fontFamily:      "'Press Start 2P', 'Courier New', monospace",
         fontSize:        9,
-        color:           "#39ff14",
+        color:           "#bc8fe7",
         letterSpacing:   0.5,
       }}>
 
         {/* Header bar */}
         <div style={{
-          background:     "#39ff14",
+          background:     "#bc8fe7",
           color:          "#000",
           padding:        "6px 10px",
           display:        "flex",
@@ -148,7 +148,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
             style={{
               background: "#000",
               border:     "2px solid #000",
-              color:      "#39ff14",
+              color:      "#bc8fe7",
               cursor:     "pointer",
               fontFamily: "inherit",
               fontSize:   8,
@@ -167,7 +167,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
           flexDirection: "column",
           gap:           8,
           scrollbarWidth: "thin",
-          scrollbarColor: "#39ff14 #050f05",
+          scrollbarColor: "#bc8fe7 #050f05",
         }}>
           {messages.map((m, i) => (
             <div key={i} style={{
@@ -175,25 +175,25 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
               maxWidth:    "90%",
             }}>
               {m.role === "bot" && (
-                <div style={{ color: "#39ff1488", fontSize: 7, marginBottom: 2 }}>
+                <div style={{ color: "#bc8fe788", fontSize: 7, marginBottom: 2 }}>
                   SIVA.EXE
                 </div>
               )}
               {m.role === "user" && (
-                <div style={{ color: "#39ff1488", fontSize: 7, marginBottom: 2, textAlign: "right" }}>
+                <div style={{ color: "#bc8fe788", fontSize: 7, marginBottom: 2, textAlign: "right" }}>
                   YOU
                 </div>
               )}
               <div style={{
-                background:  m.role === "user" ? "#0a1a0a" : "#050f05",
-                border:      `2px solid ${m.role === "user" ? "#39ff1466" : "#39ff14"}`,
+                background:  m.role === "user" ? "#1a0a2e" : "#050f05",
+                border:      `2px solid ${m.role === "user" ? "#bc8fe766" : "#bc8fe7"}`,
                 padding:     "6px 8px",
                 whiteSpace:  "pre-wrap",
                 wordBreak:   "break-word",
                 lineHeight:  1.8,
-                boxShadow:   m.role === "bot" ? "2px 2px 0 #39ff1433" : "none",
+                boxShadow:   m.role === "bot" ? "2px 2px 0 #bc8fe733" : "none",
               }}>
-                {m.role === "bot" && <span style={{ color: "#39ff1488", marginRight: 4 }}>&gt;</span>}
+                {m.role === "bot" && <span style={{ color: "#bc8fe788", marginRight: 4 }}>&gt;</span>}
                 {m.text || (loading && i === messages.length - 1
                   ? <span style={{ opacity: blink ? 1 : 0 }}>_</span>
                   : ""
@@ -205,7 +205,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
           {status && (
             <div style={{
               alignSelf:  "flex-start",
-              color:      "#39ff1499",
+              color:      "#bc8fe799",
               fontStyle:  "italic",
               fontSize:   8,
               animation:  "pulse 1s infinite",
@@ -223,7 +223,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
             display:        "flex",
             flexWrap:       "wrap",
             gap:            4,
-            borderTop:      "1px solid #39ff1433",
+            borderTop:      "1px solid #bc8fe733",
             paddingTop:     6,
           }}>
             {QUICK_Q.map(q => (
@@ -232,8 +232,8 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
                 onClick={() => send(q)}
                 style={{
                   background:  "none",
-                  border:      "1px solid #39ff14",
-                  color:       "#39ff14",
+                  border:      "1px solid #bc8fe7",
+                  color:       "#bc8fe7",
                   fontFamily:  "inherit",
                   fontSize:    7,
                   padding:     "4px 6px",
@@ -248,7 +248,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
         )}
 
         {/* Divider */}
-        <div style={{ borderTop: "2px solid #39ff14", flexShrink: 0 }} />
+        <div style={{ borderTop: "2px solid #bc8fe7", flexShrink: 0 }} />
 
         {/* Input row */}
         <div style={{
@@ -259,7 +259,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
           gap:         4,
           flexShrink:  0,
         }}>
-          <span style={{ color: "#39ff14", fontSize: 10, flexShrink: 0 }}>&gt;_</span>
+          <span style={{ color: "#bc8fe7", fontSize: 10, flexShrink: 0 }}>&gt;_</span>
           <input
             ref={inputRef}
             value={input}
@@ -271,7 +271,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
               background:  "none",
               border:      "none",
               outline:     "none",
-              color:       "#39ff14",
+              color:       "#bc8fe7",
               fontFamily:  "inherit",
               fontSize:    8,
               padding:     "4px 0",
@@ -282,9 +282,9 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
             onClick={() => send()}
             disabled={loading}
             style={{
-              background:  loading ? "#111" : "#39ff14",
+              background:  loading ? "#111" : "#bc8fe7",
               border:      "none",
-              color:       loading ? "#39ff14" : "#000",
+              color:       loading ? "#bc8fe7" : "#000",
               fontFamily:  "inherit",
               fontSize:    7,
               padding:     "4px 8px",
