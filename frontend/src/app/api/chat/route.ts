@@ -133,7 +133,10 @@ export async function POST(req: NextRequest) {
             send({ tool: tc.name });
             const t = tools.find(t => t.name === tc.name)!;
             const result = await t.invoke(tc as any);
-            currentMessages.push(new ToolMessage({ content: result, tool_call_id: tc.id! }));
+    currentMessages.push(new ToolMessage({ 
+      content: String(result),  // ← add String() cast
+      tool_call_id: tc.id! 
+}));
           }
         }
       } catch (e) {
