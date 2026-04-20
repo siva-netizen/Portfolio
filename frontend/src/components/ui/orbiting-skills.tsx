@@ -40,10 +40,10 @@ const OrbitingSkill = memo(({ config, angle, isDark }: OrbitingSkillProps & { is
     const y = Math.sin(angle) * orbitRadius;
 
     // Derived theme colors
-    const bgColor = isDark ? "bg-neutral-700/90" : "bg-neutral-100/90";
-    const borderColor = isDark ? "border-neutral-600" : "border-neutral-200";
-    const accentColor = isDark ? "#C3E41D" : "#4d7c0f";
-    const labelBg = isDark ? "bg-neutral-900/95" : "bg-neutral-100/95";
+    const bgColor = isDark ? "bg-neutral-700/90" : "bg-white/90";
+    const borderColor = isDark ? "border-neutral-600" : "border-neutral-300";
+    const accentColor = isDark ? "#8d4beb" : "#000000";
+    const labelBg = isDark ? "bg-neutral-900/95" : "bg-white/95";
     const labelText = isDark ? "text-white" : "text-black";
 
     return (
@@ -103,7 +103,7 @@ const GlowingOrbitPath = memo(({ radius, glowColor = 'cyan', animationDelay = 0,
         };
 
         // Override cyan with our accent color dynamically
-        const accentBase = isDark ? '195, 228, 29' : '77, 124, 15'; // #C3E41D vs #4d7c0f
+        const accentBase = isDark ? '141, 75, 235' : '0, 0, 0'; // #8d4beb vs #000000
 
         const rgb = color === 'cyan' ? accentBase : baseColors[color];
 
@@ -233,14 +233,14 @@ export default function OrbitingSkills({ skills, isDark = true }: OrbitingSkills
             >
 
                 {/* Central "Code" Icon with enhanced glow */}
-                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center z-10 relative shadow-2xl border ${isDark ? "bg-gradient-to-br from-neutral-700 to-neutral-900 border-neutral-600" : "bg-gradient-to-br from-neutral-100 to-white border-neutral-300"}`}>
-                    <div className={`absolute inset-0 rounded-full blur-xl animate-pulse ${isDark ? "bg-[#C3E41D]/30" : "bg-[#4d7c0f]/30"}`}></div>
+                <div className={`w-16 h-16 sm:w-20 sm:h-20 rounded-full flex items-center justify-center z-10 relative shadow-2xl border ${isDark ? "bg-gradient-to-br from-neutral-700 to-neutral-900 border-neutral-600" : "bg-gradient-to-br from-white to-neutral-100 border-neutral-300"}`}>
+                    <div className={`absolute inset-0 rounded-full blur-xl animate-pulse ${isDark ? "bg-[#8d4beb]/30" : "bg-black/10"}`}></div>
                     <div className="absolute inset-0 rounded-full bg-purple-500/20 blur-2xl animate-pulse" style={{ animationDelay: '1s' }}></div>
                     <div className="relative z-10">
                         <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="url(#gradient)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <defs>
                                 <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stopColor={isDark ? "#C3E41D" : "#4d7c0f"} />
+                                    <stop offset="0%" stopColor={isDark ? "#8d4beb" : "#000000"} />
                                     <stop offset="100%" stopColor="#9333EA" />
                                 </linearGradient>
                             </defs>
