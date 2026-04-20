@@ -76,6 +76,8 @@ export default function PortfolioHero() {
     const accentText = isDark ? "text-[#8d4beb]" : "text-black";
     const accentBorder = isDark ? "border-[#8d4beb]" : "border-black";
     const accentBg = isDark ? "bg-[#8d4beb]" : "bg-black";
+    const hoverAccentBg = isDark ? "hover:bg-[#8d4beb]" : "hover:bg-black";
+    const hoverAccentText = isDark ? "hover:text-black" : "hover:text-[#f0e6ff]";
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLButtonElement>(null);
@@ -312,7 +314,7 @@ export default function PortfolioHero() {
                 <div className="max-w-7xl w-full flex flex-col md:flex-row items-center justify-between gap-12 sm:gap-16 relative z-10">
 
                     {/* LEFT: Text Content */}
-                    <div className="flex-1 flex flex-col items-center md:items-start text-center md:text-left space-y-6">
+                    <div className="flex-1 flex flex-col items-start justify-start text-left space-y-6">
                         {/* Availability Status Badge - Only show when enabled */}
                         {profile?.available_for_work && (
                             <div className="flex items-center gap-3">
@@ -339,25 +341,38 @@ export default function PortfolioHero() {
                                 delay={50}
                                 animateBy="letters"
                                 direction="top"
-                                className="font-black text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-[0.9] tracking-tighter"
-                                style={{ color: accentColor, fontFamily: "'Arial Black', 'Helvetica Neue', sans-serif" }}
+                                className="font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.9] tracking-tighter"
+                                style={{ color: isDark ? "white" : "black" }}
                             />
                             <BlurText
                                 text={lastName.toUpperCase()}
                                 delay={50}
                                 animateBy="letters"
                                 direction="bottom"
-                                className="font-black text-6xl sm:text-7xl md:text-8xl lg:text-9xl leading-[0.9] tracking-tighter"
-                                style={{ color: accentColor, fontFamily: "'Arial Black', 'Helvetica Neue', sans-serif" }}
+                                className="font-black text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-[0.9] tracking-tighter"
+                                style={{ color: isDark ? "white" : "black" }}
                             />
                         </div>
 
                         <p
                             className={`text-xl md:text-2xl italic max-w-lg ${isDark ? "text-[#bc8fe7]/70" : "text-black"}`}
-                            style={{ fontFamily: "'Georgia', serif" }}
                         >
                             {profile?.headline || "AI Engineer / student"}
                         </p>
+
+                        {/* About Me Section */}
+                        {profile?.about && (
+                            <div className="pt-6 max-w-xl w-full">
+                                <h3 className={`text-xl md:text-2xl font-light mb-3 ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>About Me</h3>
+                                <div className={`h-[2px] w-full mb-6 ${accentBg}`}></div>
+                                <div className="flex gap-4 items-start">
+                                    <span className={`text-3xl font-bold leading-none mt-[-4px] ${accentText}`}>≈</span>
+                                    <p className={`text-base md:text-lg leading-relaxed text-justify ${isDark ? "text-neutral-300" : "text-neutral-700"}`}>
+                                        {profile.about}
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Social Links */}
                         <div className="flex gap-4 pt-4">
@@ -625,7 +640,7 @@ export default function PortfolioHero() {
                         <div className="flex justify-center mt-12">
                             <button
                                 onClick={() => setShowAllProjects(!showAllProjects)}
-                                className={`px-8 py-3 rounded-full font-medium transition-all duration-300 border ${accentBorder} ${accentText} hover:${accentBg} hover:${isDark ? "text-black" : "text-[#f0e6ff]"} flex items-center gap-2`}
+                                className={`px-8 py-3 rounded-full font-medium transition-all duration-300 border ${accentBorder} ${accentText} ${hoverAccentBg} ${hoverAccentText} flex items-center gap-2`}
                             >
                                 {showAllProjects ? "Show Less" : "See More Projects"}
                                 {showAllProjects ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -721,7 +736,7 @@ export default function PortfolioHero() {
                         <div className="flex justify-center mt-12">
                             <button
                                 onClick={() => setShowAllAchievements(!showAllAchievements)}
-                                className={`px-8 py-3 rounded-full font-medium transition-all duration-300 border ${accentBorder} ${accentText} hover:${accentBg} hover:${isDark ? "text-black" : "text-[#f0e6ff]"} flex items-center gap-2`}
+                                className={`px-8 py-3 rounded-full font-medium transition-all duration-300 border ${accentBorder} ${accentText} ${hoverAccentBg} ${hoverAccentText} flex items-center gap-2`}
                             >
                                 {showAllAchievements ? "Show Less" : "See More Achievements"}
                                 {showAllAchievements ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
@@ -798,7 +813,7 @@ export default function PortfolioHero() {
             <footer
                 className={`py-8 px-6 text-center text-sm border-t ${isDark ? "border-[#5c3c78] text-[#bc8fe7]/60" : "border-neutral-200 text-black"}`}
             >
-                © {new Date().getFullYear()} {profile?.name || "Portfolio"}. Built with passion.
+                © 2026 Siva Sabarivel. Built with bugs, fixed with caffeine.
             </footer>
         </div>
     );

@@ -48,6 +48,7 @@ export default function AdminDashboard() {
     const [profileForm, setProfileForm] = useState({
         name: "",
         headline: "",
+        about: "",
         summary: "",
         email: "",
         github: "",
@@ -120,6 +121,7 @@ export default function AdminDashboard() {
             setProfileForm({
                 name: p.name || "",
                 headline: p.headline || "",
+                about: p.about || "",
                 summary: p.summary || "",
                 email: p.email || "",
                 github: p.github || "",
@@ -422,6 +424,16 @@ export default function AdminDashboard() {
                                         placeholder="https://imgur.com/..."
                                     />
                                 </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-neutral-300 mb-1">About Me</label>
+                                <textarea
+                                    name="about"
+                                    value={profileForm.about}
+                                    onChange={handleProfileChange}
+                                    rows={4}
+                                    className="w-full px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white focus:outline-none focus:border-[#C3E41D] transition-colors resize-none"
+                                />
                             </div>
                             <div>
                                 <label className="block text-sm font-medium text-neutral-300 mb-1">Summary / Bio</label>
