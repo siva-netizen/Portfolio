@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
           for (const tc of response.tool_calls) {
             send({ tool: tc.name });
             const t = tools.find(t => t.name === tc.name)!;
-            const result = await t.invoke(tc.args);
+            const result = await t.invoke(tc as any);
             currentMessages.push(new ToolMessage({ content: result, tool_call_id: tc.id! }));
           }
         }
