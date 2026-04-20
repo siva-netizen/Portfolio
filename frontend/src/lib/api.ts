@@ -19,6 +19,7 @@ export interface Profile {
     id?: string;
     name: string;
     headline?: string;
+    about?: string;
     summary?: string;
     email?: string;
     github?: string;
