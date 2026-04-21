@@ -6,6 +6,8 @@ import { HumanMessage, SystemMessage, AIMessage, ToolMessage } from "@langchain/
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
+import { processFallbackBot, streamFallbackResponse } from "@/lib/fallback-bot";
+import { getGroqHealth, getHealthStatus } from "@/lib/health-check";
 
 // NAIVE LAZY FIX: Commenting out Firebase API reads in favor of static memory files for the chatbot
 /* 
@@ -117,55 +119,128 @@ export async function POST(req: NextRequest) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
 
       try {
-        // Agentic loop: allow up to 3 tool-call rounds
-        let currentMessages = messages;
-        for (let i = 0; i < 3; i++) {
-          console.log(`\n--- TURN ${i} ---`);
-          console.log("Invoking LLM...");
-          const response = await llm.invoke(currentMessages);
-          console.log("LLM Response tool_calls:", JSON.stringify(response.tool_calls));
-          console.log("LLM Response content:", response.content?.slice(0, 100) + "...");
+        // ── HEALTH CHECK: Determine which bot to use ──
+        const healthStatus = getHealthStatus();
+        console.log("[Chat] Health status:", {
+          isHealthy: healthStatus.isHealthy,
+          lastChecked: healthStatus.lastChecked,
+          timeSinceCheck: healthStatus.timeSinceLastCheck
+        });
 
-          if (!response.tool_calls?.length) {
-            // Final answer — stream tokens word by word
-            const words = (response.content as string).split(" ");
-            for (const word of words) {
-              send({ token: word + " " });
-              await new Promise(r => setTimeout(r, 18));
-            }
-            send({ done: true });
-            break;
-          }
+        // Perform health check if needed
+        const groqHealthy = await getGroqHealth();
+        console.log("[Chat] Groq health check result:", groqHealthy ? "✅ HEALTHY" : "❌ UNHEALTHY");
 
-          // Execute tool calls
-          currentMessages = [...currentMessages, response];
-          for (const tc of response.tool_calls) {
-            const executor = toolExecutor[tc.name];
-            if (!executor) {
-              console.error(`[Tool] Unknown tool: ${tc.name}`);
-              continue;
+        if (groqHealthy) {
+          // ──────────────────────────────────────────────────────────
+          // GROQ PATH: Use full agentic LLM with tools
+          // ──────────────────────────────────────────────────────────
+          console.log("[Chat] Using Groq API (agentic mode with tools)");
+          
+          let currentMessages = messages;
+          for (let i = 0; i < 3; i++) {
+            try {
+              console.log(`\n--- TURN ${i} ---`);
+              console.log("Invoking LLM...");
+              
+              // Groq call with timeout
+              const groqPromise = llm.invoke(currentMessages);
+              const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error("Groq API timeout")), 10000)
+              );
+              const response = await Promise.race([groqPromise, timeoutPromise]);
+              console.log("LLM Response tool_calls:", JSON.stringify(response.tool_calls));
+              console.log("LLM Response content:", response.content?.slice(0, 100) + "...");
+
+              if (!response.tool_calls?.length) {
+                // Final answer — stream tokens word by word
+                const words = (response.content as string).split(" ");
+                for (const word of words) {
+                  send({ token: word + " " });
+                  await new Promise(r => setTimeout(r, 18));
+                }
+                send({ done: true, isFromFallback: false });
+                break;
+              }
+
+              // Execute tool calls
+              currentMessages = [...currentMessages, response];
+              for (const tc of response.tool_calls) {
+                const executor = toolExecutor[tc.name];
+                if (!executor) {
+                  console.error(`[Tool] Unknown tool: ${tc.name}`);
+                  continue;
+                }
+                
+                const resultStr = executor();
+                console.log(`[Tool] ${tc.name} executed, returned ${resultStr.length} chars`);
+                
+                // Send tool call with retrieved content
+                send({ 
+                  tool: tc.name,
+                  retrieved_content: resultStr,
+                  retrieved_chars: resultStr.length
+                });
+                
+                currentMessages.push(new ToolMessage({
+                  name: tc.name,
+                  content: "Data returned:\n" + resultStr,
+                  tool_call_id: tc.id!
+                }));
+              }
+            } catch (turnError: any) {
+              console.error("[Chat] Error in Groq turn:", turnError.message);
+              // If Groq fails mid-conversation, fall back to NLP for this response
+              console.warn("[Chat] Switching to fallback for this query");
+              throw turnError; // Trigger fallback
             }
-            
-            const resultStr = executor();
-            console.log(`[Tool] ${tc.name} executed, returned ${resultStr.length} chars`);
-            
-            // Send tool call with retrieved content
-            send({ 
-              tool: tc.name,
-              retrieved_content: resultStr,
-              retrieved_chars: resultStr.length
-            });
-            
-            currentMessages.push(new ToolMessage({
-              name: tc.name,
-              content: "Data returned:\n" + resultStr,
-              tool_call_id: tc.id!
-            }));
           }
+        } else {
+          // ──────────────────────────────────────────────────────────
+          // NLP FALLBACK PATH: Use intent classifier without Groq
+          // ──────────────────────────────────────────────────────────
+          console.log("[Chat] Using NLP fallback bot (Groq unhealthy)");
+          const fallbackResponse = processFallbackBot(question);
+          
+          // Send fallback metadata
+          send({
+            fallback: true,
+            intent: fallbackResponse.intent,
+            confidence: fallbackResponse.confidence,
+            suggestions: fallbackResponse.suggestions,
+            healthStatus: {
+              isHealthy: false,
+              reason: "Groq API unhealthy, using NLP fallback"
+            }
+          });
+
+          // Stream the fallback response word by word
+          for await (const token of streamFallbackResponse(fallbackResponse.message)) {
+            send({ token });
+            await new Promise(r => setTimeout(r, 18));
+          }
+          send({ done: true, isFromFallback: true });
         }
       } catch (e: any) {
-        console.error("Agentic loop error:", e);
-        send({ error: e.message || "Something went wrong." });
+        console.error("[Chat] Error:", e.message);
+        
+        // Fallback to NLP if Groq fails
+        console.log("[Chat] Falling back to NLP bot due to error");
+        const fallbackResponse = processFallbackBot(question);
+        
+        send({
+          fallback: true,
+          intent: fallbackResponse.intent,
+          confidence: fallbackResponse.confidence,
+          suggestions: fallbackResponse.suggestions,
+          error_fallback: true
+        });
+
+        for await (const token of streamFallbackResponse(fallbackResponse.message)) {
+          send({ token });
+          await new Promise(r => setTimeout(r, 18));
+        }
+        send({ done: true, isFromFallback: true });
       } finally {
         controller.close();
       }
