@@ -353,7 +353,7 @@ export default function PortfolioHero() {
                             </div>
                         )}
 
-                        <div className="space-y-2">
+                        <div className="space-y-5">
                             <BlurText
                                 text={firstName.toUpperCase()}
                                 delay={50}
@@ -372,11 +372,7 @@ export default function PortfolioHero() {
                             />
                         </div>
 
-                        <p
-                            className={`text-xl md:text-2xl italic max-w-lg ${isDark ? "text-[#bc8fe7]/70" : "text-black"}`}
-                        >
-                            {profile?.headline || "AI Engineer / student"}
-                        </p>
+
 
                         {/* About Me Section */}
                         {profile?.about && (
