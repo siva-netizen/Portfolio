@@ -1,7 +1,4 @@
-/**
- * Example: Client-side handling of fallback bot responses
- * Use this in your chat component (e.g., AvatarChat.tsx)
- */
+import React, { useState } from "react"; // Fix 1: explicit React import
 
 interface ChatEvent {
   token?: string;
@@ -34,7 +31,7 @@ export async function* streamChatResponse(
     }
 
     let isFallback = false;
-    let intent: string | null = null;
+    let intent: string | undefined = undefined; // Fix 2: null → undefined
     let confidence = 0;
     const suggestions: string[] = [];
 
@@ -55,10 +52,9 @@ export async function* streamChatResponse(
           try {
             const event: ChatEvent = JSON.parse(line.slice(6));
 
-            // Track fallback status
             if (event.fallback) {
               isFallback = true;
-              intent = event.intent || null;
+              intent = event.intent ?? undefined; // Fix 2: null-safe
               confidence = event.confidence || 0;
               if (event.suggestions) {
                 suggestions.push(...event.suggestions);
@@ -72,7 +68,6 @@ export async function* streamChatResponse(
               };
             }
 
-            // Stream tokens
             if (event.token) {
               yield {
                 type: "token",
@@ -81,7 +76,6 @@ export async function* streamChatResponse(
               };
             }
 
-            // Handle completion
             if (event.done) {
               yield {
                 type: "done",
@@ -90,7 +84,6 @@ export async function* streamChatResponse(
               return;
             }
 
-            // Handle errors
             if (event.error) {
               throw new Error(event.error);
             }
@@ -110,14 +103,15 @@ export async function* streamChatResponse(
 }
 
 /**
- * Example React component using fallback bot
+ * Chat component
  */
 export function ChatComponentExample() {
-  const [messages, setMessages] = React.useState<
+  // Fix 1: React.useState → useState
+  const [messages, setMessages] = useState<
     Array<{ role: string; content: string }>
   >([]);
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [fallbackStatus, setFallbackStatus] = React.useState<{
+  const [isLoading, setIsLoading] = useState(false);
+  const [fallbackStatus, setFallbackStatus] = useState<{
     active: boolean;
     intent?: string;
     confidence?: number;
@@ -127,42 +121,36 @@ export function ChatComponentExample() {
     setIsLoading(true);
     let response = "";
 
+    // Add user message immediately before streaming
+    setMessages((prev) => [...prev, { role: "user", content: question }]);
+
     try {
       for await (const event of streamChatResponse(question, messages)) {
         if (event.type === "fallback-metadata") {
-          console.log(`Fallback bot active: ${event.intent}`);
           setFallbackStatus({
             active: true,
             intent: event.intent,
             confidence: event.confidence,
           });
-
-          // Show notification to user
-          // toast.info(`Using fallback bot - Intent: ${event.intent}`);
         }
 
         if (event.type === "token") {
           response += event.token;
 
-          // Update message in real-time
+          // Update or append assistant message
           setMessages((prev) => {
             const updated = [...prev];
-            if (updated[updated.length - 1]?.role === "assistant") {
-              updated[updated.length - 1].content = response;
+            const last = updated[updated.length - 1];
+            if (last?.role === "assistant") {
+              updated[updated.length - 1] = { ...last, content: response };
+            } else {
+              updated.push({ role: "assistant", content: response });
             }
             return updated;
           });
         }
 
         if (event.type === "done") {
-          // Add to history when complete
-          setMessages((prev) => [
-            ...prev,
-            { role: "user", content: question },
-            { role: "assistant", content: response },
-          ]);
-
-          // Clear fallback status
           if (!event.isFromFallback) {
             setFallbackStatus({ active: false });
           }
@@ -170,7 +158,6 @@ export function ChatComponentExample() {
 
         if (event.type === "error") {
           console.error("Chat error:", event.error);
-          // Show error to user
         }
       }
     } finally {
@@ -178,23 +165,27 @@ export function ChatComponentExample() {
     }
   };
 
+  // Fix 3: JSX must be in a .tsx file — this component returns JSX correctly
   return (
     <div className="chat-container">
       {fallbackStatus.active && (
         <div className="fallback-notice">
           ⚠️ Using fallback bot (Intent: {fallbackStatus.intent},{" "}
-          {(fallbackStatus.confidence! * 100).toFixed(0)}% confident)
+          {((fallbackStatus.confidence ?? 0) * 100).toFixed(0)}% confident)
         </div>
       )}
-
-      {/* Chat messages here */}
-      {/* Input field that calls handleSubmit() */}
+      {messages.map((msg, i) => (
+        <div key={i} className={`message message--${msg.role}`}>
+          {msg.content}
+        </div>
+      ))}
+      {isLoading && <div className="message message--loading">Thinking...</div>}
     </div>
   );
 }
 
 /**
- * Visual Indicator Component for Fallback Status
+ * Fallback badge
  */
 export function FallbackBadge({
   active,
@@ -207,29 +198,30 @@ export function FallbackBadge({
 }) {
   if (!active) return null;
 
-  const colors = {
+  const colors: Record<"high" | "medium" | "low", string> = {
     high: "bg-green-100 text-green-800",
     medium: "bg-yellow-100 text-yellow-800",
     low: "bg-red-100 text-red-800",
   };
 
-  const level =
-    (confidence || 0) > 0.7 ? "high" : (confidence || 0) > 0.5 ? "medium" : "low";
+  const level: "high" | "medium" | "low" =
+    (confidence ?? 0) > 0.7 ? "high" : (confidence ?? 0) > 0.5 ? "medium" : "low";
 
   return (
     <div className={`px-3 py-1 rounded text-sm font-medium ${colors[level]}`}>
-      Fallback: {intent} ({(confidence! * 100).toFixed(0)}%)
+      Fallback: {intent} ({((confidence ?? 0) * 100).toFixed(0)}%)
     </div>
   );
 }
 
 /**
- * Storage Pattern - Save conversation with fallback markers
+ * Save chat history — SSR safe
  */
 export function saveChatHistory(
   messages: Array<{ role: string; content: string; isFallback?: boolean }>
 ) {
-  // Mark messages that came from fallback
+  if (typeof window === "undefined") return; // Fix: SSR guard
+
   const enriched = messages.map((msg) => ({
     ...msg,
     timestamp: new Date().toISOString(),
@@ -239,7 +231,7 @@ export function saveChatHistory(
 }
 
 /**
- * Analytics - Track fallback usage
+ * Analytics
  */
 export function trackFallbackUsage(intent: string, confidence: number) {
   const event = {
@@ -248,10 +240,5 @@ export function trackFallbackUsage(intent: string, confidence: number) {
     confidence,
     timestamp: new Date().toISOString(),
   };
-
-  // Send to analytics service
   console.log("Analytics:", event);
-
-  // Example: send to server for monitoring
-  // fetch('/api/analytics', { method: 'POST', body: JSON.stringify(event) });
 }

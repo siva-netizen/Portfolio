@@ -1,5 +1,4 @@
 import { NextRequest } from "next/server";
-// import { ChatCerebras } from "@langchain/cerebras";
 import { ChatGroq } from "@langchain/groq"
 import { tool } from "@langchain/core/tools";
 import { HumanMessage, SystemMessage, AIMessage, ToolMessage } from "@langchain/core/messages";
@@ -8,17 +7,6 @@ import fs from "fs";
 import path from "path";
 import { processFallbackBot, streamFallbackResponse } from "@/lib/fallback-bot";
 import { getGroqHealth, getHealthStatus } from "@/lib/health-check";
-
-// NAIVE LAZY FIX: Commenting out Firebase API reads in favor of static memory files for the chatbot
-/* 
-import {
-  getProfile,
-  getExperiences,
-  getProjects,
-  getSkills,
-  getAchievements,
-} from "@/lib/api";
-*/
 
 function readMemory(filename: string) {
   try {
@@ -31,50 +19,33 @@ function readMemory(filename: string) {
   }
 }
 
-// ── LangChain Tools backed by Firebase ───────────────────────────
 const profileTool = tool(
-  async () => {
-    // NAIVE LAZY FIX: Read from memory markdown file
-    return readMemory("profile.md");
-  },
+  async () => readMemory("profile.md"),
   { name: "get_profile", description: "Get the portfolio owner's profile, bio, and contact info.", schema: z.object({}).catch({}) }
 );
 
 const experienceTool = tool(
-  async () => {
-    // NAIVE LAZY FIX: Read from memory markdown file
-    return readMemory("experience.md");
-  },
+  async () => readMemory("experience.md"),
   { name: "get_experience", description: "Get work experience and job history.", schema: z.object({}).catch({}) }
 );
 
 const projectsTool = tool(
-  async () => {
-    // NAIVE LAZY FIX: Read from memory markdown file
-    return readMemory("projects.md");
-  },
+  async () => readMemory("projects.md"),
   { name: "get_projects", description: "Get portfolio projects, tech stacks, and links.", schema: z.object({}).catch({}) }
 );
 
 const skillsTool = tool(
-  async () => {
-    // NAIVE LAZY FIX: Read from memory markdown file
-    return readMemory("skills.md");
-  },
+  async () => readMemory("skills.md"),
   { name: "get_skills", description: "Get technical skills grouped by category.", schema: z.object({}).catch({}) }
 );
 
 const achievementsTool = tool(
-  async () => {
-    // NAIVE LAZY FIX: Read from memory markdown file
-    return readMemory("achievements.md");
-  },
+  async () => readMemory("achievements.md"),
   { name: "get_achievements", description: "Get awards, certifications, and achievements.", schema: z.object({}).catch({}) }
 );
 
 const tools = [profileTool, experienceTool, projectsTool, skillsTool, achievementsTool];
 
-// Direct mapping for tool execution
 const toolExecutor: { [key: string]: () => string } = {
   get_profile: () => readMemory("profile.md"),
   get_experience: () => readMemory("experience.md"),
@@ -119,7 +90,6 @@ export async function POST(req: NextRequest) {
         controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
 
       try {
-        // ── HEALTH CHECK: Determine which bot to use ──
         const healthStatus = getHealthStatus();
         console.log("[Chat] Health status:", {
           isHealthy: healthStatus.isHealthy,
@@ -127,33 +97,32 @@ export async function POST(req: NextRequest) {
           timeSinceCheck: healthStatus.timeSinceLastCheck
         });
 
-        // Perform health check if needed
         const groqHealthy = await getGroqHealth();
         console.log("[Chat] Groq health check result:", groqHealthy ? "✅ HEALTHY" : "❌ UNHEALTHY");
 
         if (groqHealthy) {
-          // ──────────────────────────────────────────────────────────
-          // GROQ PATH: Use full agentic LLM with tools
-          // ──────────────────────────────────────────────────────────
           console.log("[Chat] Using Groq API (agentic mode with tools)");
-          
+
           let currentMessages = messages;
           for (let i = 0; i < 3; i++) {
             try {
               console.log(`\n--- TURN ${i} ---`);
               console.log("Invoking LLM...");
-              
-              // Groq call with timeout
+
               const groqPromise = llm.invoke(currentMessages);
-              const timeoutPromise = new Promise((_, reject) => 
+
+              // Fix: type the timeout as never so Promise.race infers from groqPromise
+              const timeoutPromise = new Promise<never>((_, reject) =>
                 setTimeout(() => reject(new Error("Groq API timeout")), 10000)
               );
+
+              // Fix: Promise.race now correctly infers Awaited<typeof groqPromise>
               const response = await Promise.race([groqPromise, timeoutPromise]);
+
               console.log("LLM Response tool_calls:", JSON.stringify(response.tool_calls));
-              console.log("LLM Response content:", response.content?.slice(0, 100) + "...");
+              console.log("LLM Response content:", (response.content as string)?.slice(0, 100) + "...");
 
               if (!response.tool_calls?.length) {
-                // Final answer — stream tokens word by word
                 const words = (response.content as string).split(" ");
                 for (const word of words) {
                   send({ token: word + " " });
@@ -163,7 +132,6 @@ export async function POST(req: NextRequest) {
                 break;
               }
 
-              // Execute tool calls
               currentMessages = [...currentMessages, response];
               for (const tc of response.tool_calls) {
                 const executor = toolExecutor[tc.name];
@@ -171,17 +139,16 @@ export async function POST(req: NextRequest) {
                   console.error(`[Tool] Unknown tool: ${tc.name}`);
                   continue;
                 }
-                
+
                 const resultStr = executor();
                 console.log(`[Tool] ${tc.name} executed, returned ${resultStr.length} chars`);
-                
-                // Send tool call with retrieved content
-                send({ 
+
+                send({
                   tool: tc.name,
                   retrieved_content: resultStr,
                   retrieved_chars: resultStr.length
                 });
-                
+
                 currentMessages.push(new ToolMessage({
                   name: tc.name,
                   content: "Data returned:\n" + resultStr,
@@ -190,19 +157,14 @@ export async function POST(req: NextRequest) {
               }
             } catch (turnError: any) {
               console.error("[Chat] Error in Groq turn:", turnError.message);
-              // If Groq fails mid-conversation, fall back to NLP for this response
               console.warn("[Chat] Switching to fallback for this query");
-              throw turnError; // Trigger fallback
+              throw turnError;
             }
           }
         } else {
-          // ──────────────────────────────────────────────────────────
-          // NLP FALLBACK PATH: Use intent classifier without Groq
-          // ──────────────────────────────────────────────────────────
           console.log("[Chat] Using NLP fallback bot (Groq unhealthy)");
           const fallbackResponse = processFallbackBot(question);
-          
-          // Send fallback metadata
+
           send({
             fallback: true,
             intent: fallbackResponse.intent,
@@ -214,7 +176,6 @@ export async function POST(req: NextRequest) {
             }
           });
 
-          // Stream the fallback response word by word
           for await (const token of streamFallbackResponse(fallbackResponse.message)) {
             send({ token });
             await new Promise(r => setTimeout(r, 18));
@@ -223,11 +184,9 @@ export async function POST(req: NextRequest) {
         }
       } catch (e: any) {
         console.error("[Chat] Error:", e.message);
-        
-        // Fallback to NLP if Groq fails
         console.log("[Chat] Falling back to NLP bot due to error");
         const fallbackResponse = processFallbackBot(question);
-        
+
         send({
           fallback: true,
           intent: fallbackResponse.intent,
