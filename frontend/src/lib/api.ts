@@ -79,9 +79,13 @@ export async function updateProfile(data: Partial<Profile>): Promise<void> {
 
 // ==================== EXPERIENCE ====================
 export async function getExperiences(): Promise<Experience[]> {
-    const q = query(collection(db, "experience"), orderBy("start_date", "desc"));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Experience));
+    const snapshot = await getDocs(collection(db, "experience"));
+    const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Experience));
+    return docs.sort((a, b) => {
+        if (!a.start_date) return 1;
+        if (!b.start_date) return -1;
+        return new Date(b.start_date).getTime() - new Date(a.start_date).getTime();
+    });
 }
 
 export async function addExperience(data: Omit<Experience, "id">): Promise<string> {
@@ -99,9 +103,9 @@ export async function deleteExperience(id: string): Promise<void> {
 
 // ==================== PROJECTS ====================
 export async function getProjects(): Promise<Project[]> {
-    const q = query(collection(db, "projects"), orderBy("order_index", "asc"));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Project));
+    const snapshot = await getDocs(collection(db, "projects"));
+    const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Project));
+    return docs.sort((a, b) => (a.order_index ?? 999) - (b.order_index ?? 999));
 }
 
 export async function addProject(data: Omit<Project, "id">): Promise<string> {
@@ -139,9 +143,9 @@ export async function deleteSkill(id: string): Promise<void> {
 
 // ==================== ACHIEVEMENTS ====================
 export async function getAchievements(): Promise<Achievement[]> {
-    const q = query(collection(db, "achievements"), orderBy("order_index", "asc"));
-    const snapshot = await getDocs(q);
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Achievement));
+    const snapshot = await getDocs(collection(db, "achievements"));
+    const docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Achievement));
+    return docs.sort((a, b) => (a.order_index ?? 999) - (b.order_index ?? 999));
 }
 
 export async function addAchievement(data: Omit<Achievement, "id">): Promise<string> {
