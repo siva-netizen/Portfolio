@@ -54,7 +54,7 @@ const toolExecutor: { [key: string]: () => string } = {
   get_achievements: () => readMemory("achievements.md"),
 };
 
-const llm = new ChatGroq({
+const getLLM = () => new ChatGroq({
   model: "llama-3.3-70b-versatile",
   apiKey: process.env.GROQ_API_KEY,
   temperature: 0.05,
@@ -74,6 +74,28 @@ Strictly limit your response to the exact facts provided by the tools.`;
 
 export async function POST(req: NextRequest) {
   const { question, history = [] } = await req.json();
+
+  // Short-circuit: no API key → skip health check, go straight to fallback
+  if (!process.env.GROQ_API_KEY) {
+    const fallbackResponse = processFallbackBot(question);
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        const send = (data: object) =>
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify(data)}\n\n`));
+        send({ fallback: true, intent: fallbackResponse.intent, confidence: fallbackResponse.confidence });
+        for await (const token of streamFallbackResponse(fallbackResponse.message)) {
+          send({ token });
+          await new Promise(r => setTimeout(r, 18));
+        }
+        send({ done: true, isFromFallback: true });
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: { "Content-Type": "text/event-stream", "Cache-Control": "no-cache", Connection: "keep-alive" },
+    });
+  }
 
   const messages = [
     new SystemMessage(SYSTEM),
@@ -109,7 +131,7 @@ export async function POST(req: NextRequest) {
               console.log(`\n--- TURN ${i} ---`);
               console.log("Invoking LLM...");
 
-              const groqPromise = llm.invoke(currentMessages);
+              const groqPromise = getLLM().invoke(currentMessages);
 
               // Fix: type the timeout as never so Promise.race infers from groqPromise
               const timeoutPromise = new Promise<never>((_, reject) =>

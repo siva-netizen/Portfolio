@@ -343,7 +343,7 @@ export default function PortfolioHero() {
                                         <span className="relative inline-flex rounded-full h-3 w-3 bg-[#8d4beb]"></span>
                                     </span>
                                     <span className={`text-sm font-medium ${isDark ? "text-[#bc8fe7]" : "text-neutral-700"}`}>
-                                        Available for Work
+                                        Open to Work
                                     </span>
                                     {/* Decorative sparkle */}
                                     <svg className="w-4 h-4 text-yellow-400 animate-pulse" fill="currentColor" viewBox="0 0 24 24">
@@ -353,7 +353,7 @@ export default function PortfolioHero() {
                             </div>
                         )}
 
-                        <div className="space-y-5">
+                        <div className="flex flex-row items-end gap-4 flex-wrap">
                             <BlurText
                                 text={firstName.toUpperCase()}
                                 delay={50}
@@ -389,7 +389,7 @@ export default function PortfolioHero() {
                         )}
 
                         {/* Social Links */}
-                        <div className="flex gap-4 pt-4">
+                        <div className="flex gap-4 pt-4 self-center md:self-start">
                             <a
                                 href={profile?.github || "#"}
                                 target="_blank"
@@ -554,7 +554,7 @@ export default function PortfolioHero() {
                                                 </div>
                                             </div>
 
-                                            <div className="ml-16 space-y-4">
+                                            <div className="mt-3 md:ml-16 space-y-4">
                                                 {/* Role & Date */}
                                                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                                     <div className={`flex items-center gap-2 text-lg font-medium ${isDark ? "text-[#f0e6ff]" : "text-black"}`}>
@@ -631,7 +631,7 @@ export default function PortfolioHero() {
                                             href={proj.github_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className={`text-[#bc8fe7]/70 hover:${accentText} transition-colors`}
+                                            className={`transition-colors hover:${accentText} ${isDark ? "text-[#bc8fe7]/70" : "text-[#0073CF]"}`}
                                         >
                                             <Github className="w-5 h-5" />
                                         </a>
@@ -641,7 +641,7 @@ export default function PortfolioHero() {
                                             href={proj.demo_url}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className={`text-[#bc8fe7]/70 hover:${accentText} transition-colors`}
+                                            className={`transition-colors hover:${accentText} ${isDark ? "text-[#bc8fe7]/70" : "text-[#0073CF]"}`}
                                         >
                                             <ExternalLink className="w-5 h-5" />
                                         </a>
@@ -696,18 +696,18 @@ export default function PortfolioHero() {
 
                             return (
                                 <div key={category} className={`border rounded-xl p-4 ${isDark ? "bg-black/40 border-[#5c3c78]" : "bg-neutral-100 border-neutral-200"}`}>
-                                    <h3 className={`text-sm font-semibold ${accentText} mb-4 uppercase tracking-wider`}>{category}</h3>
-                                    <div className="flex flex-col gap-2">
+                                    <h3 className={`text-sm font-semibold ${accentText} mb-4 uppercase tracking-wider text-center`}>{category}</h3>
+                                    <div className="grid grid-cols-2 gap-2">
                                         {groupedSkills[category].map((skill) => (
-                                            <div key={skill.id} className={`rounded-lg p-3 flex items-center gap-3 ${isDark ? "bg-[#5c3c78]" : "bg-neutral-200"}`}>
+                                            <div key={skill.id} className={`rounded-lg p-3 flex items-center gap-3 ${isDark ? "bg-[#ffffff17]" : "bg-neutral-200"}`}>
                                                 {skill.icon_url ? (
-                                                    <img src={skill.icon_url} alt={skill.name} className="w-6 h-6 object-contain rounded" referrerPolicy="no-referrer" />
+                                                    <img src={skill.icon_url} alt={skill.name} className="w-6 h-6 object-contain rounded shrink-0" referrerPolicy="no-referrer" />
                                                 ) : (
-                                                    <div className={`w-6 h-6 rounded ${isDark ? "bg-[#5c3c78]" : "bg-neutral-300"} flex items-center justify-center text-xs ${accentText} font-bold`}>
+                                                    <div className={`w-6 h-6 rounded shrink-0 ${isDark ? "bg-[#ffffff17]" : "bg-neutral-300"} flex items-center justify-center text-xs ${accentText} font-bold`}>
                                                         {skill.name.charAt(0)}
                                                     </div>
                                                 )}
-                                                <span className={`text-sm font-medium ${isDark ? "text-[#bc8fe7]" : "text-neutral-800"}`}>{skill.name}</span>
+                                                <span className={`text-sm font-medium truncate ${isDark ? "text-white" : "text-neutral-800"}`}>{skill.name}</span>
                                             </div>
                                         ))}
                                     </div>
