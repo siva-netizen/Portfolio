@@ -4,6 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Siva Sabarivel | AI/ML Engineer",
   description: "AI/ML Engineer specializing in LLM Systems, RAG, and Agentic AI",
+  icons: { icon: "/favicon.png" },
 };
 
 export default function RootLayout({

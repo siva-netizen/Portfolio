@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 
 interface AvatarChatProps {
   avatarPos: { x: number; y: number };
@@ -32,6 +32,19 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
   const [status, setStatus] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [blink, setBlink]   = useState(true);
+  const isDark = typeof document !== "undefined"
+    ? document.documentElement.classList.contains("dark")
+    : true;
+
+  // Theme tokens
+  const bg       = isDark ? "#050f05"  : "#ffffff";
+  const fg       = isDark ? "#d4aaff"  : "#000000";
+  const fgMuted  = isDark ? "#bc8fe788" : "#00000088";
+  const msgBgBot = isDark ? "#050f05"  : "#f5f5f5";
+  const msgBgUsr = isDark ? "#1a0a2e"  : "#e8e8e8";
+  const inputBg  = isDark ? "#050f05"  : "#ffffff";
+  const boldColor = isDark ? "#8d4beb" : "#000000";
+  const linkColor = "#0073CF";
 
   const historyRef = useRef<{ role: string; content: string }[]>([]);
   const inputRef   = useRef<HTMLInputElement>(null);
@@ -104,8 +117,60 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
     }
   }, [input, loading]);
 
-  // Dot grid background
-  const dotGrid = `radial-gradient(circle, #1a3a1a 1px, transparent 1px)`;
+  // Renders markdown-lite text: bold, italic, bullet points, newlines, and hyperlinks
+function renderText(text: string, fg: string, fgMuted: string, boldColor: string, linkColor: string) {
+  const URL_RE = /https?:\/\/[^\s)>\]]+/g;
+
+  return text.split("\n").map((line, li) => {
+    const trimmed = line.trimStart();
+    const isBullet = trimmed.startsWith("- ") || trimmed.startsWith("• ");
+    const content = isBullet ? trimmed.slice(2) : line;
+
+    // Split by URLs, then apply inline bold/italic
+    const parts: React.ReactNode[] = [];
+    let last = 0;
+    let m: RegExpExecArray | null;
+    URL_RE.lastIndex = 0;
+    while ((m = URL_RE.exec(content)) !== null) {
+      if (m.index > last) parts.push(...inlineFormat(content.slice(last, m.index), fgMuted, boldColor));
+      parts.push(
+        <a key={m.index} href={m[0]} target="_blank" rel="noopener noreferrer"
+          style={{ color: linkColor, textDecoration: "underline", wordBreak: "break-all" }}>
+          {m[0]}
+        </a>
+      );
+      last = m.index + m[0].length;
+    }
+    if (last < content.length) parts.push(...inlineFormat(content.slice(last), fgMuted, boldColor));
+
+    return (
+      <div key={li} style={{ display: "flex", gap: 4, marginBottom: isBullet ? 2 : 0 }}>
+        {isBullet && <span style={{ color: fgMuted, flexShrink: 0 }}>▸</span>}
+        <span>{parts}</span>
+      </div>
+    );
+  });
+}
+
+function inlineFormat(text: string, fgMuted: string, boldColor: string): React.ReactNode[] {
+  // Handle **bold** and *italic*
+  const parts: React.ReactNode[] = [];
+  const re = /(\*\*(.+?)\*\*|\*(.+?)\*)/g;
+  let last = 0, m: RegExpExecArray | null;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    if (m[2]) parts.push(<strong key={m.index} style={{ color: boldColor, fontWeight: 700 }}>{m[2]}</strong>);
+    else if (m[3]) parts.push(<em key={m.index}>{m[3]}</em>);
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
+
+  const dotGrid = isDark
+    ? `radial-gradient(circle, #1a3a1a 1px, transparent 1px)`
+    : `radial-gradient(circle, #cccccc 1px, transparent 1px)`;
 
   return (
     <>
@@ -121,21 +186,22 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
         zIndex:          10000,
         display:         "flex",
         flexDirection:   "column",
-        background:      "#050f05",
+        background:      undefined,
+        backgroundColor: bg,
         backgroundImage: `${dotGrid}`,
         backgroundSize:  "12px 12px",
-        border:          "3px solid #bc8fe7",
-        boxShadow:       "0 0 0 1px #000, 0 0 24px #bc8fe755, inset 0 0 40px #00100a",
+        border:          `3px solid ${fg}`,
+        boxShadow:       isDark ? "0 0 0 1px #000, 0 0 24px #bc8fe755, inset 0 0 40px #00100a" : "0 0 0 1px #ccc, 0 0 24px #00000022",
         fontFamily:      "'Press Start 2P', 'Courier New', monospace",
         fontSize:        9,
-        color:           "#bc8fe7",
+        color:           fg,
         letterSpacing:   0.5,
       }}>
 
         {/* Header bar */}
         <div style={{
-          background:     "#bc8fe7",
-          color:          "#000",
+          background:     fg,
+          color:          isDark ? "#000" : "#fff",
           padding:        "6px 10px",
           display:        "flex",
           justifyContent: "space-between",
@@ -146,9 +212,9 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
           <button
             onClick={onClose}
             style={{
-              background: "#000",
-              border:     "2px solid #000",
-              color:      "#bc8fe7",
+              background: isDark ? "#000" : "#fff",
+              border:     `2px solid ${isDark ? "#000" : "#fff"}`,
+              color:      fg,
               cursor:     "pointer",
               fontFamily: "inherit",
               fontSize:   8,
@@ -167,7 +233,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
           flexDirection: "column",
           gap:           8,
           scrollbarWidth: "thin",
-          scrollbarColor: "#bc8fe7 #050f05",
+          scrollbarColor: `${fg} ${bg}`,
         }}>
           {messages.map((m, i) => (
             <div key={i} style={{
@@ -175,29 +241,33 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
               maxWidth:    "90%",
             }}>
               {m.role === "bot" && (
-                <div style={{ color: "#bc8fe788", fontSize: 7, marginBottom: 2 }}>
+                <div style={{ color: fgMuted, fontSize: 7, marginBottom: 2 }}>
                   SIVA.EXE
                 </div>
               )}
               {m.role === "user" && (
-                <div style={{ color: "#bc8fe788", fontSize: 7, marginBottom: 2, textAlign: "right" }}>
+                <div style={{ color: fgMuted, fontSize: 7, marginBottom: 2, textAlign: "right" }}>
                   YOU
                 </div>
               )}
               <div style={{
-                background:  m.role === "user" ? "#1a0a2e" : "#050f05",
-                border:      `2px solid ${m.role === "user" ? "#bc8fe766" : "#bc8fe7"}`,
+                background:  m.role === "user" ? msgBgUsr : msgBgBot,
+                border:      `2px solid ${m.role === "user" ? fg + "66" : fg}`,
                 padding:     "6px 8px",
-                whiteSpace:  "pre-wrap",
+                whiteSpace:  m.role === "user" ? "pre-wrap" : "normal",
                 wordBreak:   "break-word",
                 lineHeight:  1.8,
-                boxShadow:   m.role === "bot" ? "2px 2px 0 #bc8fe733" : "none",
+                boxShadow:   m.role === "bot" ? `2px 2px 0 ${fg}33` : "none",
+                color:       fg,
               }}>
-                {m.role === "bot" && <span style={{ color: "#bc8fe788", marginRight: 4 }}>&gt;</span>}
-                {m.text || (loading && i === messages.length - 1
-                  ? <span style={{ opacity: blink ? 1 : 0 }}>_</span>
-                  : ""
-                )}
+                {m.role === "bot" && <span style={{ color: fgMuted, marginRight: 4 }}>&gt;</span>}
+                {m.text
+                  ? (m.role === "bot" ? renderText(m.text, fg, fgMuted, boldColor, linkColor) : m.text)
+                  : (loading && i === messages.length - 1
+                    ? <span style={{ opacity: blink ? 1 : 0 }}>_</span>
+                    : ""
+                  )
+                }
               </div>
             </div>
           ))}
@@ -205,7 +275,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
           {status && (
             <div style={{
               alignSelf:  "flex-start",
-              color:      "#bc8fe799",
+              color:      fgMuted,
               fontStyle:  "italic",
               fontSize:   8,
               animation:  "pulse 1s infinite",
@@ -223,7 +293,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
             display:        "flex",
             flexWrap:       "wrap",
             gap:            4,
-            borderTop:      "1px solid #bc8fe733",
+            borderTop:      `1px solid ${fg}33`,
             paddingTop:     6,
           }}>
             {QUICK_Q.map(q => (
@@ -232,8 +302,8 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
                 onClick={() => send(q)}
                 style={{
                   background:  "none",
-                  border:      "1px solid #bc8fe7",
-                  color:       "#bc8fe7",
+                  border:      `1px solid ${fg}`,
+                  color:       fg,
                   fontFamily:  "inherit",
                   fontSize:    7,
                   padding:     "4px 6px",
@@ -248,18 +318,18 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
         )}
 
         {/* Divider */}
-        <div style={{ borderTop: "2px solid #bc8fe7", flexShrink: 0 }} />
+        <div style={{ borderTop: `2px solid ${fg}`, flexShrink: 0 }} />
 
         {/* Input row */}
         <div style={{
           display:     "flex",
           alignItems:  "center",
-          background:  "#050f05",
+          background:  inputBg,
           padding:     "4px 6px",
           gap:         4,
           flexShrink:  0,
         }}>
-          <span style={{ color: "#bc8fe7", fontSize: 10, flexShrink: 0 }}>&gt;_</span>
+          <span style={{ color: fg, fontSize: 10, flexShrink: 0 }}>&gt;_</span>
           <input
             ref={inputRef}
             value={input}
@@ -271,7 +341,7 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
               background:  "none",
               border:      "none",
               outline:     "none",
-              color:       "#bc8fe7",
+              color:       fg,
               fontFamily:  "inherit",
               fontSize:    8,
               padding:     "4px 0",
@@ -282,9 +352,9 @@ export default function AvatarChat({ avatarPos, onClose }: AvatarChatProps) {
             onClick={() => send()}
             disabled={loading}
             style={{
-              background:  loading ? "#111" : "#bc8fe7",
+              background:  loading ? (isDark ? "#111" : "#ddd") : fg,
               border:      "none",
-              color:       loading ? "#bc8fe7" : "#000",
+              color:       loading ? fg : (isDark ? "#000" : "#fff"),
               fontFamily:  "inherit",
               fontSize:    7,
               padding:     "4px 8px",
